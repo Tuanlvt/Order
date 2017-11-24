@@ -1,0 +1,90 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+apply from: '../autodimension.gradle'
+
+/**
+ * start config and check ci*/
+apply from: '../checkci.gradle'
+
+def APP_ID = "com.framgia.forder"
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+    defaultConfig {
+        applicationId "${APP_ID}"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+        vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    buildTypes {
+        debug {
+            versionNameSuffix = "debug"
+            ext.betaDistributionReleaseNotesFilePath = "release_notes.txt"
+            ext.betaDistributionGroupAliases = "Framgia"
+            ext.betaDistributionNotifications = true
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    applicationVariants.all { variant ->
+        def APP_KEY = "6a8c057c782e29509c31"
+        def CLUSTER_KEY = "ap1"
+        def CHANNEL_KEY = "keyChannelFcmAndroid"
+        def EVENT_KEY = "App\\\\Events\\\\NotificationHandler"
+        variant.buildConfigField "String", "APP_KEY", "\"${APP_KEY}\""
+        variant.buildConfigField "String", "CLUSTER_KEY", "\"${CLUSTER_KEY}\""
+        variant.buildConfigField "String", "CHANNEL_KEY", "\"${CHANNEL_KEY}\""
+        variant.buildConfigField "String", "EVENT_KEY", "\"${EVENT_KEY}\""
+    }
+    buildToolsVersion '26.0.2'
+}
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    Map<String, String> dependencies = rootProject.ext.dependencies;
+
+    compile dependencies.supportDesign
+    compile dependencies.constraintLayout
+
+    compile dependencies.rxJava
+    compile dependencies.rxAndroid
+    compile dependencies.kotlin
+
+    compile dependencies.retrofit2
+    compile dependencies.retrofit2Adapter
+    compile dependencies.retrofitGson
+    compile dependencies.loggingInterceptor
+    compile dependencies.cardView
+    compile dependencies.glide
+    compile dependencies.animationbutton
+    compile dependencies.pusher
+    compile dependencies.pusherJava
+    compile dependencies.multidex
+
+    kapt dependencies.dagger2Compile
+    compile dependencies.dagger2
+    provided dependencies.annotation
+
+    testCompile dependencies.junit
+    testCompile dependencies.mockito
+
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+        transitive = true
+    }
+}
